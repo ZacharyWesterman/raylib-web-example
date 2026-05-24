@@ -17,11 +17,14 @@ CFLAGS = -I$(RLDIR)/include -std=c++20
 
 OBJECTS = obj/main.o
 
+# Calculate flags for webassembly target
 ifneq (,$(findstring $(TARGET),webassembly))
 CC = em++
-LFLAGS += -sASYNCIFY -sUSE_GLFW=3
+LFLAGS += -sUSE_GLFW=3
+CFLAGS += -DPLATFORM_WEB
 BINARY = bin/$(NAME).js
 
+# Debug webassembly flags
 ifneq (,$(findstring $(DEBUG),TRUE True true 1))
 LFLAGS += --emrun
 BINARY = bin/$(NAME).html
