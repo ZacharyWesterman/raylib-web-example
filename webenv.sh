@@ -9,4 +9,4 @@ fi
 
 #Create a new shell for the emsdk env
 
-bash --rcfile <(echo '. ~/.bashrc; export PS1="(emsdk) $PS1"; EMSDK_QUIET=1 source emsdk/emsdk_env.sh')
+bash --rcfile <(echo '. ~/.bashrc; export PS1="(emsdk) $PS1"; EMSDK_QUIET=1 source emsdk/emsdk_env.sh; echo "Virtual environment active. Ctrl-D or \`exit\` to return to regular env."')
