@@ -20,7 +20,13 @@ OBJECTS = obj/main.o
 ifneq (,$(findstring $(TARGET),webassembly))
 CC = em++
 LFLAGS += -sASYNCIFY -sUSE_GLFW=3
+BINARY = bin/$(NAME).js
+
+ifneq (,$(findstring $(DEBUG),TRUE True true 1))
+LFLAGS += --emrun
 BINARY = bin/$(NAME).html
+endif
+
 endif
 
 #########################################
