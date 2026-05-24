@@ -4,8 +4,8 @@ VER_MINOR = 0
 
 RAYLIB_VER = 6.0
 
-# Valid values: linux_amd64, webassembly
 TARGET = linux_amd64
+VALID_TARGETS := webassembly linux_amd64
 
 BINARY = bin/$(NAME)
 RLDIR = lib/raylib-$(RAYLIB_VER)_$(TARGET)
@@ -16,6 +16,11 @@ LFLAGS = $(RLDIR)/lib/libraylib.a -lGL -lm -lpthread -ldl -lrt -lX11
 CFLAGS = -I$(RLDIR)/include -std=c++20
 
 OBJECTS = obj/main.o
+
+# Make sure the build target is valid
+ifeq (,$(findstring $(TARGET) , $(VALID_TARGETS) ))
+$(error Invalid build target, valid targets are: $(VALID_TARGETS))
+endif
 
 # Calculate flags for webassembly target
 ifneq (,$(findstring $(TARGET),webassembly))
