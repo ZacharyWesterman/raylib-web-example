@@ -4,35 +4,32 @@ VER_MINOR = 0
 
 RAYLIB_VER = 6.0
 
+# Valid values: linux_amd64, webassembly
+TARGET = linux_amd64
+
+BINARY = bin/$(NAME)
+RLDIR = lib/raylib-$(RAYLIB_VER)_$(TARGET)
+RLBIN = $(RLDIR)/lib/libraylib.a
+
+CC = g++
 LFLAGS = $(RLDIR)/lib/libraylib.a -lGL -lm -lpthread -ldl -lrt -lX11
 CFLAGS = -I$(RLDIR)/include -std=c++20
 
-CC = g++
-
 OBJECTS = obj/main.o
 
-RLDIR = lib/raylib-$(RAYLIB_VER)_linux_amd64
+ifneq (,$(findstring $(TARGET),webassembly))
+CC = em++
+LFLAGS += -sASYNCIFY -sUSE_GLFW=3
+BINARY = bin/$(NAME).html
+endif
 
 #########################################
 # Phony rules
 #########################################
 
-.PHONY: web web-debug clean pristine
+.PHONY: main clean pristine
 
-linux: RLDIR = lib/raylib-$(RAYLIB_VER)_linux_amd64
-linux: bin/$(NAME)
-
-web: CC = em++
-web: RLDIR = lib/raylib-$(RAYLIB_VER)_webassembly
-web: LFLAGS += -sASYNCIFY -sUSE_GLFW=3
-web: bin/$(NAME).js
-
-web-debug: CC = em++
-web-debug: RLDIR = lib/raylib-$(RAYLIB_VER)_webassembly
-web-debug: LFLAGS += --emrun -sASYNCIFY -sUSE_GLFW=3
-web-debug: bin/$(NAME).html
-
-raylib: lib/raylib
+main: $(BINARY) $(RLDIR)
 
 clean:
 	rm -rf bin obj
@@ -51,15 +48,15 @@ bin/$(NAME).html: $(OBJECTS) | bin/$(NAME).js
 bin/$(NAME).js: $(OBJECTS) | bin/$(NAME).wasm
 	$(CC) -o $@ $^ $(LFLAGS)
 
-bin/$(NAME).wasm: $(OBJECTS) | bin $(RLDIR)/lib/libraylib.a
+bin/$(NAME).wasm: $(OBJECTS) $(RLBIN) | bin
 	$(CC) -o $@ $^ $(LFLAGS)
 
 # Linux build
-bin/$(NAME): $(OBJECTS) | bin $(RLDIR)/lib/libraylib.a
+bin/$(NAME): $(OBJECTS) $(RLBIN) | bin
 	$(CC) -o $@ $^ $(LFLAGS)
 
 # Objects
-obj/main.o: src/main.cpp | obj
+obj/main.o: src/main.cpp | obj $(RLDIR)
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 obj/%.o: src/%.cpp src/%.hpp | obj
@@ -68,7 +65,7 @@ obj/%.o: src/%.cpp src/%.hpp | obj
 # Raylib rules.
 # The exact version of raylib will change depending on the target environment.
 
-lib/raylib-$(RAYLIB_VER)_%: lib/raylib-$(RAYLIB_VER)_%/lib/libraylib.a
+$(RLDIR): $(RLBIN)
 
 lib/raylib-$(RAYLIB_VER)_linux_%/lib/libraylib.a: lib/raylib-$(RAYLIB_VER)_linux_%.tar.gz
 	tar xzf $< -C lib/
