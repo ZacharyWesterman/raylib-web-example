@@ -73,7 +73,7 @@ bin/$(NAME): $(OBJECTS) $(RLBIN) | bin
 obj/main.o: src/main.cpp | obj $(RLDIR)
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-obj/%.o: src/%.cpp src/%.hpp | obj
+obj/%.o: src/%.cpp src/%.hpp | obj $(RLDIR)
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 # Raylib rules.
